@@ -49,9 +49,11 @@ function LatestArrival({ product, reviews }) {
         ))}
       </Swiper>
       <div className="mt-8">
-        <Button className="bg-white border border-black border-opacity-10 text-black px-20 py-4 rounded-full font-normal hover:bg-black hover:bg-opacity-10 transition duration-300">
-          View All
-        </Button>
+        <Link to="/shop/latest-product">
+          <Button className="bg-white border border-black border-opacity-10 text-black px-20 py-4 rounded-full font-normal hover:bg-black hover:bg-opacity-10 transition duration-300">
+            View All
+          </Button>
+        </Link>
       </div>
     </div>
   );

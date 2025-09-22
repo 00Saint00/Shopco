@@ -10,13 +10,35 @@ import Banner from "../Banner/Banner";
 import { Autoplay } from "swiper/modules";
 import axios from "axios";
 import Spinner from "../Ui/Spinner";
+import { applyDailyDiscounts } from "../utils/discountUtils";
 
-// Lazy-load heavy components to reduce initial bundle size and main thread work
+// Lazy-load heavy components
 const LatestArrival = lazy(() => import("./Latest/latestArrival"));
 const Topselling = lazy(() => import("./Top selling/topselling"));
 const DressStyles = lazy(() => import("./Dress Styles/dressStyle"));
 const Testimonials = lazy(() => import("./Testimonials/testimonial"));
 const Slider = lazy(() => import("../Ui/Slider"));
+
+// // --- Daily Discount Logic ---
+// function getDailyDiscountedItems(products, count = 10) {
+//   const today = new Date().toISOString().split("T")[0]; // "2025-09-20"
+//   const seed = today.split("-").join(""); // e.g. "20250920"
+//   let rng = mulberry32(parseInt(seed)); // seeded RNG
+
+//   const shuffled = [...products].sort(() => rng() - 0.5);
+//   return shuffled.slice(0, count);
+// }
+
+// // Small seeded RNG
+// function mulberry32(a) {
+//   return function () {
+//     a |= 0;
+//     a = (a + 0x6d2b79f5) | 0;
+//     let t = Math.imul(a ^ (a >>> 15), 1 | a);
+//     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+//     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+//   };
+// }
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -34,44 +56,15 @@ function Home() {
     speed: 900,
     loop: true,
     slidesPerView: 3,
-    onSlideChange: () => console.log("slide change"),
-    onSwiper: (swiper) => console.log(swiper),
     breakpoints: {
-      320: {
-        slidesPerView: 1,
-        centeredSlides: true,
-        spaceBetween: 10,
-      },
-      640: {
-        slidesPerView: 2,
-        spaceBetween: 20,
-      },
-      1024: {
-        slidesPerView: 2,
-        spaceBetween: 60,
-      },
-      1280: {
-        slidesPerView: 3,
-        spaceBetween: 40,
-      },
+      320: { slidesPerView: 1, centeredSlides: true, spaceBetween: 10 },
+      640: { slidesPerView: 2, spaceBetween: 20 },
+      1024: { slidesPerView: 2, spaceBetween: 60 },
+      1280: { slidesPerView: 3, spaceBetween: 40 },
     },
   };
-  // useEffect(() => {
-  //   axios
-  //     .get("https://fakestoreapiserver.reactbd.org/api/products") // Update with your API endpoint
-  //     .then((response) => {
-  //       const products = response.data.data; // Assuming response.data is an object with a data property
-  //       const brandNames = [...new Set(products.map((item) => item.brand))];
-  //       const slidesData = brandNames.map((brand) => ({ title: brand }));
-  //       setSlides(slidesData);
-  //       setLoading(false);
-  //     })
-  //     .catch((error) => {
-  //       setError(error.message);
-  //       setLoading(false);
-  //     });
-  // }, []);
 
+  // --- Fetch Products ---
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -80,9 +73,17 @@ function Home() {
         );
         const allProducts = response.data.data;
 
-        // Use startTransition for low-priority state update
+        // Pick discounted items for today
+        const discountedItems = applyDailyDiscounts(allProducts, 10);
+
+        // Add `isDiscounted` flag to the products
+        const taggedProducts = allProducts.map((p) => ({
+          ...p,
+          isDiscounted: discountedItems.some((d) => d._id === p._id),
+        }));
+
         startTransition(() => {
-          setProducts(allProducts); // Store full products
+          setProducts(taggedProducts);
           setLoading(false);
         });
       } catch (err) {
@@ -94,32 +95,21 @@ function Home() {
     fetchProducts();
   }, []);
 
-  //latestArrival
-
-  // const latestProducts = useMemo(() => {
-  //   if (!products || products.length === 0) return [];
-  //   return products.slice(-8);
-  // });
-
+  // --- Derived data ---
   const latestProducts = products.slice(-8);
 
-  //topSelling
   const topSellingProducts = useMemo(
-    () => [...products].sort((a, b) => b.rating - a.rating).slice(0, 8), // top 8 by rating
+    () => [...products].sort((a, b) => b.rating - a.rating).slice(0, 8),
     [products]
   );
 
-  //unique slides (set)
   const uniqueBrands = useMemo(() => {
     return [...new Set(products.map((p) => p.brand))].map((brand) => ({
       brand,
     }));
   }, [products]);
 
-  console.log("uniqueBrands", uniqueBrands);
-  console.log("uniqueBrands", uniqueBrands.length);
-
-  //review and users
+  // --- Fetch Reviews + Users ---
   useEffect(() => {
     const fetchReviews = axios.get(
       "https://fakestoreapiserver.reactbd.org/api/reviews"
@@ -152,14 +142,11 @@ function Home() {
       });
   }, []);
 
-  if (loading) return <Spinner />; // No need to lazy-load Spinner for small SVGs
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (loading) return <Spinner />;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="">
+    <div>
       <Banner />
       <div className="bg-black py-[32px] lg:py-[44px] text-center">
         <Slider slides={uniqueBrands} settings={settings} />
@@ -169,17 +156,17 @@ function Home() {
           <LatestArrival product={latestProducts} reviews={reviews} />
         </Suspense>
         <hr className="border border-black border-opacity-10" />
-        <Suspense fallback={<div>Loading Latest Arrival...</div>}>
+        <Suspense fallback={<div>Loading Top Selling...</div>}>
           <Topselling topSold={topSellingProducts} reviews={reviews} />
         </Suspense>
 
         <div className="py-[50px] lg:py-[100px]">
-          <Suspense fallback={<div>Loading Latest Styles...</div>}>
+          <Suspense fallback={<div>Loading Dress Styles...</div>}>
             <DressStyles />
           </Suspense>
         </div>
         <div className="py-[50px] pt-[50px] lg:pt-[80px] pb-[90%] lg:pb-[170px]">
-          <Suspense fallback={<div>Loading Latest Testimonials...</div>}>
+          <Suspense fallback={<div>Loading Testimonials...</div>}>
             <Testimonials reviews={reviews} />
           </Suspense>
         </div>

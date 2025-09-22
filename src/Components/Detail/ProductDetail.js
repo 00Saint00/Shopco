@@ -7,6 +7,7 @@ import Tabs from "../Ui/Tabs";
 import Error from "../Ui/Error";
 import ProductTab from "./ProductTab";
 import RelatedProducts from "./RelatedProducts";
+import { applyDailyDiscounts } from "../utils/discountUtils";
 
 function ProductDetail() {
   const { id } = useParams(); // this comes from the route /products/:id
@@ -41,25 +42,36 @@ function ProductDetail() {
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(
-          `https://fakestoreapiserver.reactbd.org/api/products/${id}`
-        );
-        setProduct(response.data);
-
-        // fetch all products for related
+        // fetch all products
         const allRes = await axios.get(
           "https://fakestoreapiserver.reactbd.org/api/products"
         );
         const allProducts = allRes.data.data;
 
-        // console.log(allProducts.map((p) => p.brand));
+        // apply the same daily discount logic
+        const discountedAll = applyDailyDiscounts(allProducts, 10);
 
-        // filter out same product + match by category
-        const related = allProducts.filter(
-          (p) =>
-            p.category === response.data.category && p._id !== response.data._id
+        // find the current product by id
+        const current = discountedAll.find((p) => String(p._id) === id);
+
+        console.log("Route id:", id);
+        console.log("Matched product:", current);
+        console.log("Matched product:", current._id);
+
+        // if product not found
+        if (!current) {
+          setError("Product not found");
+          return;
+        }
+
+        // set the product
+        setProduct(current);
+
+        // get related products
+        const related = discountedAll.filter(
+          (p) => p.category === current.category && p._id !== current._id
         );
-        console.log(related.length);
+
         setRelatedProducts(related);
       } catch (err) {
         setError(err.message);
@@ -160,18 +172,25 @@ function ProductDetail() {
               <span className="text-gray-500 text-2xl">{product.rating}/5</span>
             </div>
             <div className="mt-4 flex items-center gap-4">
-              <p className="text-[32px] font-bold">
-                ${product.discountedPrice}
-              </p>
-              <p className="line-through text-black text-opacity-10 text-[32px] font-bold">
-                ${product.price}
-              </p>
-              <div className="bg-[#FF3333] bg-opacity-10 rounded-[62px] py-[6px] px-[14px]">
-                <p className="text-[#FF3333] text-[18px] font-bold">
-                  -{getDiscount(product.price, product.discountedPrice)}%
-                </p>
-              </div>
+              {product.isDiscounted ? (
+                <>
+                  <p className="text-[32px] font-bold">
+                    ${product.discountedPrice}
+                  </p>
+                  <p className="line-through text-black text-opacity-10 text-[32px] font-bold">
+                    ${product.price}
+                  </p>
+                  <div className="bg-[#FF3333] bg-opacity-10 rounded-[62px] py-[6px] px-[14px]">
+                    <p className="text-[#FF3333] text-[18px] font-bold">
+                      -{getDiscount(product.price, product.discountedPrice)}%
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <p className="text-[32px] font-bold">${product.price}</p>
+              )}
             </div>
+
             <p className="mt-[20px] text-[16px] text-black text-opacity-60">
               {product.description}
             </p>

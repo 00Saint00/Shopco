@@ -83,12 +83,22 @@ const Header = () => {
                             </a> */}
                           </Menu.Item>
                           <Menu.Item>
-                            <a
+                            {({ active }) => (
+                              <Link
+                                to="/category/women"
+                                className={`block px-4 py-2 ${
+                                  active ? "bg-gray-100" : ""
+                                }`}
+                              >
+                                Women
+                              </Link>
+                            )}
+                            {/* <a
                               href="#"
                               className="block px-4 py-2 hover:bg-gray-100"
                             >
                               Women
-                            </a>
+                            </a> */}
                           </Menu.Item>
                         </div>
                       </Menu.Items>
@@ -119,7 +129,9 @@ const Header = () => {
             <i className="fas fa-shopping-cart"></i> Cart
           </span> */}
           {/* <span>Login</span> */}
-          <img src={userIcon} alt="Logo" className="h-[24px] w-[24px]" />
+          <Link to="/login" className="sm:mr-4 mr-2">
+            <img src={userIcon} alt="Logo" className="h-[24px] w-[24px]" />
+          </Link>
         </div>
       </div>
     </header>

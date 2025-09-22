@@ -66,9 +66,11 @@ function Topselling({ topSold, reviews }) {
 
       {/* View All button */}
       <div className="mt-9">
-        <Button className="bg-white border border-black border-opacity-10 px-20 py-4 rounded-full font-normal hover:bg-black hover:bg-opacity-10 transition duration-300">
-          View all
-        </Button>
+        <Link to="/shop/top-selling">
+          <Button className="bg-white border border-black border-opacity-10 px-20 py-4 rounded-full font-normal hover:bg-black hover:bg-opacity-10 transition duration-300">
+            View all
+          </Button>
+        </Link>
       </div>
     </div>
   );
