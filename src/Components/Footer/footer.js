@@ -30,6 +30,26 @@ function Footer() {
           </button>
         </div>
       </div>
+      {/* <div className="absolute inset-x-0 top-0 transform -translate-y-[57%] mx-auto w-[96%] lg:w-[90%] bg-black py-[32px] lg:py-[43px] px-[24px] lg:px-[64px] rounded-[20px] grid grid-cols-1 md:grid-cols-2 gap-[32px] lg:gap-[212px] min-h-[200px]">
+        <h3 className="text-[32px] lg:text-[40px] font-bold leading-[35px] lg:leading-[45px] text-white text-poppins">
+          STAY UPTO DATE ABOUT OUR LATEST OFFERS
+        </h3>
+
+        <div>
+          <div className="flex justify-center gap-[12px] border rounded-[62px] bg-white mb-[14px] py-[12px] px-[16px]">
+            <EnvelopeIcon className="h-[24px] w-[24px] text-black text-opacity-60 font-bold stroke-[2]" />
+            <input
+              type="email"
+              placeholder="Enter your email address..."
+              className="w-full text-black"
+            />
+          </div>
+          <button className="w-full bg-white hover:bg-black hover:text-white py-[12px] px-[80.5px] rounded-[62px] text-black text-[14px]">
+            Subscribe to newsletter
+          </button>
+        </div>
+      </div> */}
+
       <div className="flex flex-col md:flex-row md:justify-between gap-8">
         {/* Left box: Logo + description */}
         <div className="md:w-1/3 lg:w-1/5">

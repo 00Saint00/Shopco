@@ -8,6 +8,7 @@ const Card = React.memo(function Card({
   price,
   rating,
   isDiscounted, // 👈 now coming from Home
+  priority = false,
 }) {
   const stars = useMemo(
     () =>
@@ -27,8 +28,9 @@ const Card = React.memo(function Card({
       <div className="bg-[#F0EEED] h-[200px] lg:h-[298px] w-full lg:w-[295px] flex justify-center items-center rounded-[20px] overflow-hidden">
         <img
           src={image}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
           alt={title}
+          fetchpriority="high"
           className="w-full h-full object-cover object-top rounded-[20px]"
         />
       </div>

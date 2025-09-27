@@ -153,11 +153,23 @@ function Home() {
       </div>
       <section className="px-[16px] lg:px-[100px] border-t border-black border-opacity-10">
         <Suspense fallback={<div>Loading Latest Arrival...</div>}>
-          <LatestArrival product={latestProducts} reviews={reviews} />
+          <LatestArrival
+            product={latestProducts.map((product, index) => ({
+              ...product,
+              priority: index < 4,
+            }))}
+            reviews={reviews}
+          />
         </Suspense>
         <hr className="border border-black border-opacity-10" />
         <Suspense fallback={<div>Loading Top Selling...</div>}>
-          <Topselling topSold={topSellingProducts} reviews={reviews} />
+          <Topselling
+            topSold={topSellingProducts.map((product, index) => ({
+              ...product,
+              priority: index < 4, // first 4 items get priority
+            }))}
+            reviews={reviews}
+          />
         </Suspense>
 
         <div className="py-[50px] lg:py-[100px]">
