@@ -6,38 +6,74 @@ import axios from "axios";
 
 const API_URL = "https://api.escuelajs.co/api/v1/users";
 const Register_URL = "https://api.escuelajs.co/api/v1/users";
+const API_BASE = "https://api.escuelajs.co/api/v1";
 
 const AuthPage = () => {
   const [serverError, setServerError] = useState(null);
 
+  // const handleSubmit = async ({ email, password }) => {
+  //   setServerError(null);
+  //   try {
+  //     const { data } = await axios.get(API_URL);
+
+  //     const users = Array.isArray(data) ? data : data.data ?? [];
+
+  //     // DEMO rule: password === username
+  //     const user = users.find(
+  //       (u) =>
+  //         u.email.toLowerCase() === email.toLowerCase() &&
+  //         u.password === password
+  //     );
+
+  //     if (!user) {
+  //       setServerError("Invalid email or password");
+  //       return;
+  //     }
+
+  //     // success → save and redirect
+  //     localStorage.setItem("user", JSON.stringify(user));
+  //     // window.location.href = "/"; // change route if needed
+  //     console.log("✅ Yup! We are logged in:", user);
+  //   } catch (err) {
+  //     setServerError(err.response?.data?.message || "Login failed");
+  //   }
+  // };
+  // ✅ LOGIN
   const handleSubmit = async ({ email, password }) => {
     setServerError(null);
     try {
-      const { data } = await axios.get(API_URL);
+      // 1) Login → get token
+      const { data } = await axios.post(`${API_BASE}/auth/login`, {
+        email,
+        password,
+      });
 
-      const users = Array.isArray(data) ? data : data.data ?? [];
+      const { access_token } = data; // API returns { access_token, refresh_token }
 
-      // DEMO rule: password === username
-      const user = users.find(
-        (u) =>
-          u.email.toLowerCase() === email.toLowerCase() &&
-          u.password === password
-      );
-
-      if (!user) {
-        setServerError("Invalid email or password");
+      if (!access_token) {
+        setServerError("Login failed: No token received");
         return;
       }
 
-      // success → save and redirect
-      localStorage.setItem("user", JSON.stringify(user));
-      // window.location.href = "/"; // change route if needed
-      console.log("✅ Yup! We are logged in:", user);
+      // 2) Fetch user profile with token
+      const profileRes = await axios.get(`${API_BASE}/auth/profile`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+
+      // 3) Store token + user
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("user", JSON.stringify(profileRes.data));
+
+      console.log("✅ Logged in user:", profileRes.data);
+      window.location.href = "/";
     } catch (err) {
       setServerError(err.response?.data?.message || "Login failed");
     }
   };
 
+  // ✅ REGISTER
   const handleRegister = async ({ name, email, password, role, avatar }) => {
     setServerError(null);
 
@@ -49,7 +85,7 @@ const AuthPage = () => {
         role,
         avatar: avatar ?? null,
       };
-      const { newUser } = await axios.post(Register_URL, payload);
+      const { data: newUser } = await axios.post(Register_URL, payload);
 
       localStorage.setItem("user", JSON.stringify(newUser));
       console.log("✅ Registered user:", newUser);

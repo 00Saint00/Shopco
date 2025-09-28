@@ -260,7 +260,12 @@ function ProductDetail() {
         <ProductTab review={reviews} products={product} />
       </div>
       <div>
-        <RelatedProducts relatedProduct={topRelatedProudcts} />
+        <RelatedProducts
+          relatedProduct={topRelatedProudcts.map((product) => ({
+            ...product,
+            priority: true,
+          }))}
+        />
       </div>
     </div>
   );

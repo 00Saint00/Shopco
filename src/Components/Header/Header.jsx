@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from "../../assets/logo/SHOP.CO.svg";
 import cart from "../../assets/logo/cart.svg";
 import userIcon from "../../assets/logo/User.svg";
@@ -8,11 +8,24 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   MagnifyingGlassIcon,
+  ArrowLeftStartOnRectangleIcon,
+  UserIcon,
+  ClipboardDocumentCheckIcon,
 } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
+import { Button } from "@headlessui/react";
 
 const Header = () => {
   const [navOpen, setNavOpen] = useState(false);
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    // Load user from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   return (
     <header className="flex justify-between items-center lg:px-[100px] lg:py-[24px] px-[16px] py-[12px]">
@@ -129,9 +142,76 @@ const Header = () => {
             <i className="fas fa-shopping-cart"></i> Cart
           </span> */}
           {/* <span>Login</span> */}
-          <Link to="/login" className="sm:mr-4 mr-2">
-            <img src={userIcon} alt="Logo" className="h-[24px] w-[24px]" />
-          </Link>
+
+          {user ? (
+            <Menu as="div" className="relative inline-block text-left">
+              <Menu.Button className="flex items-center gap-2 focus:outline-none">
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="h-[32px] w-[32px] rounded-full"
+                />
+                <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+              </Menu.Button>
+
+              <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
+                <div className="px-3 py-2 border-b">
+                  <p className="text-sm font-medium">{user.name}</p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+
+                <Menu.Item>
+                  {({ active }) => (
+                    <Link
+                      to="/profile"
+                      className={`${
+                        active ? "bg-gray-100" : ""
+                      } flex items-center w-full px-4 py-2 text-sm text-gray-800`}
+                    >
+                      <UserIcon className="h-4 w-4 mr-2" />
+                      My Profile
+                    </Link>
+                  )}
+                </Menu.Item>
+
+                <Menu.Item>
+                  {({ active }) => (
+                    <Link
+                      to="/dashboard"
+                      className={`${
+                        active ? "bg-gray-100" : ""
+                      } flex items-center w-full px-4 py-2 text-sm text-gray-800`}
+                    >
+                      <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
+                      DashBoard
+                    </Link>
+                  )}
+                </Menu.Item>
+
+                <Menu.Item>
+                  {({ active }) => (
+                    <Button
+                      onClick={() => {
+                        localStorage.removeItem("user");
+                        localStorage.removeItem("token");
+                        window.location.href = "/";
+                      }}
+                      className={`${
+                        active ? "bg-gray-100" : ""
+                      } flex items-center w-full px-4 py-2 text-sm text-red-600`}
+                    >
+                      <ArrowLeftStartOnRectangleIcon className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  )}
+                </Menu.Item>
+              </Menu.Items>
+            </Menu>
+          ) : (
+            <Link to="/login" className="sm:mr-4 mr-2">
+              <img src={userIcon} alt="Logo" className="h-[24px] w-[24px]" />
+            </Link>
+          )}
         </div>
       </div>
     </header>
