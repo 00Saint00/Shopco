@@ -63,8 +63,20 @@ const AuthPage = () => {
       });
 
       // 3) Store token + user
+      const expiresIn = 60 * 60 * 1000; // 1 hour session
+      const expiryTime = Date.now() + expiresIn;
+
       localStorage.setItem("token", access_token);
       localStorage.setItem("user", JSON.stringify(profileRes.data));
+      localStorage.setItem("expiryTime", expiryTime.toString());
+
+      // 4) Auto-logout after expiry
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("expiryTime");
+        window.location.href = "/login"; // redirect to login
+      }, expiresIn);
 
       console.log("✅ Logged in user:", profileRes.data);
       window.location.href = "/";

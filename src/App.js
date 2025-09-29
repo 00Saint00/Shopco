@@ -10,8 +10,30 @@ import Category from "./Components/Category Pages/Category.js";
 import Topselling from "./Components/Category Pages/TopSellingProducts.js";
 import Shop from "./Components/Shop/Shop.js";
 import AuthPage from "./Components/auth/AuthPage.js";
+import { useState, useEffect } from "react";
 
 function App() {
+  useEffect(() => {
+    const checkExpiry = () => {
+      const expiryTime = localStorage.getItem("expiryTime");
+      if (expiryTime && Date.now() > Number(expiryTime)) {
+        // expired → clear storage
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("expiryTime");
+        window.location.href = "/login"; // redirect to login
+      }
+    };
+
+    // run once on load
+    checkExpiry();
+
+    // run every 5s to catch expiry while browsing
+    const interval = setInterval(checkExpiry, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="App">
       {/* <Header />

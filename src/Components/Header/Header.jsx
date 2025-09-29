@@ -174,19 +174,21 @@ const Header = () => {
                   )}
                 </Menu.Item>
 
-                <Menu.Item>
-                  {({ active }) => (
-                    <Link
-                      to="/dashboard"
-                      className={`${
-                        active ? "bg-gray-100" : ""
-                      } flex items-center w-full px-4 py-2 text-sm text-gray-800`}
-                    >
-                      <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
-                      DashBoard
-                    </Link>
-                  )}
-                </Menu.Item>
+                {user.role === "admin" ? (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <Link
+                        to="/dashboard"
+                        className={`${
+                          active ? "bg-gray-100" : ""
+                        } flex items-center w-full px-4 py-2 text-sm text-gray-800`}
+                      >
+                        <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
+                        DashBoard
+                      </Link>
+                    )}
+                  </Menu.Item>
+                ) : null}
 
                 <Menu.Item>
                   {({ active }) => (
