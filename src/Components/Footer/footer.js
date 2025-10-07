@@ -25,7 +25,7 @@ function Footer() {
               className="w-full text-black"
             />
           </div>
-          <button className="w-full bg-white hover:bg-black hover:text-white py-[12px] px-[80.5px] rounded-[62px] text-black text-[14px]">
+          <button className="w-full bg-white hover:bg-zinc-300 hover:text-black py-[12px] px-[80.5px] rounded-[62px] text-black text-[14px]">
             Subscribe to newsletter
           </button>
         </div>

@@ -40,12 +40,13 @@ function Topselling({ topSold, reviews }) {
         spaceBetween={16}
         slidesPerView={1} // default for mobile
         autoplay={{
-          delay: 2000,
+          delay: 3000,
           disableOnInteraction: false,
           reverseDirection: true,
         }}
         speed={800}
         loop={true}
+         virtual={true}
         breakpoints={{
           640: { slidesPerView: 2, spaceBetween: 20 },
           1024: { slidesPerView: 3, spaceBetween: 30 },

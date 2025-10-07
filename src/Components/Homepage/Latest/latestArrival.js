@@ -29,8 +29,9 @@ function LatestArrival({ product, reviews }) {
         spaceBetween={16}
         slidesPerView={1} // Adjust for responsive breakpoints below
         autoplay={{ delay: 2000, disableOnInteraction: false }}
-        speed={800}
+        speed={3000}
         loop={true}
+        virtual={true}
         breakpoints={{
           640: { slidesPerView: 2, spaceBetween: 20 },
           1024: { slidesPerView: 3, spaceBetween: 30 },
@@ -38,7 +39,7 @@ function LatestArrival({ product, reviews }) {
         }}
       >
         {product.map((prod, index) => (
-          <SwiperSlide virtualIndex={index} key={prod._id}>
+          <SwiperSlide virtualIndex={index} key={index}>
             <Link
               to={`/products/${prod._id}/${slugify(prod.title)}`}
               state={{ reviews }}

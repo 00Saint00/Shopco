@@ -7,6 +7,7 @@ import Tabs from "../Ui/Tabs";
 import Error from "../Ui/Error";
 import ProductTab from "./ProductTab";
 import RelatedProducts from "./RelatedProducts";
+import { addToCart } from "../utils/CartUtil";
 import { applyDailyDiscounts } from "../utils/discountUtils";
 
 function ProductDetail() {
@@ -248,7 +249,12 @@ function ProductDetail() {
               </button>
             </div>
             <div className="flex-1">
-              <Button className="w-full py-[15px] bg-black text-white rounded-[62px]">
+              <Button
+                className="w-full py-[15px] bg-black text-white rounded-[62px]"
+                onClick={() => {
+                  addToCart(product, selectedSize, quantity);
+                }}
+              >
                 Add to Cart
               </Button>
             </div>

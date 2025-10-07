@@ -3,6 +3,7 @@ import { Tab } from "@headlessui/react";
 import Login from "./Login";
 import Register from "./Register";
 import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const API_URL = "https://api.escuelajs.co/api/v1/users";
 const Register_URL = "https://api.escuelajs.co/api/v1/users";
@@ -10,6 +11,11 @@ const API_BASE = "https://api.escuelajs.co/api/v1";
 
 const AuthPage = () => {
   const [serverError, setServerError] = useState(null);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from || "/";
 
   // const handleSubmit = async ({ email, password }) => {
   //   setServerError(null);
@@ -43,7 +49,11 @@ const AuthPage = () => {
     setServerError(null);
     try {
       // 1) Login → get token
-      const { data } = await axios.post(`${API_BASE}/auth/login`, {
+      // const { data } = await axios.post(`${API_BASE}/auth/login`, {
+      //   email,
+      //   password,
+      // });
+      const { data } = await axios.post(`/auth/login`, {
         email,
         password,
       });
@@ -56,7 +66,7 @@ const AuthPage = () => {
       }
 
       // 2) Fetch user profile with token
-      const profileRes = await axios.get(`${API_BASE}/auth/profile`, {
+      const profileRes = await axios.get(`/auth/profile`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
@@ -70,6 +80,9 @@ const AuthPage = () => {
       localStorage.setItem("user", JSON.stringify(profileRes.data));
       localStorage.setItem("expiryTime", expiryTime.toString());
 
+      // 🔑 Broadcast update so Header picks it up
+      window.dispatchEvent(new Event("storageUpdate"));
+
       // 4) Auto-logout after expiry
       setTimeout(() => {
         localStorage.removeItem("token");
@@ -78,8 +91,11 @@ const AuthPage = () => {
         window.location.href = "/login"; // redirect to login
       }, expiresIn);
 
+      setUser(profileRes.data);
+
       console.log("✅ Logged in user:", profileRes.data);
-      window.location.href = "/";
+      // window.location.href = "/";
+      navigate(from, { replace: true });
     } catch (err) {
       setServerError(err.response?.data?.message || "Login failed");
     }
@@ -97,7 +113,7 @@ const AuthPage = () => {
         role,
         avatar: avatar ?? null,
       };
-      const { data: newUser } = await axios.post(Register_URL, payload);
+      const { data: newUser } = await axios.post("/users", payload);
 
       localStorage.setItem("user", JSON.stringify(newUser));
       console.log("✅ Registered user:", newUser);
@@ -108,7 +124,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="px-[16px] lg:px-[100px] pt-[80px] pb-[168px]">
+    <div className="px-[16px] lg:px-[100px] pt-[80px] pb-[60%] lg:pb-[168px]">
       <h1 className="text-2xl font-bold mb-6">Authentication</h1>
 
       <div className="w-full max-w-md mx-auto">

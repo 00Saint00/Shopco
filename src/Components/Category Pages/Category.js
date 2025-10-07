@@ -45,7 +45,7 @@ const Category = () => {
       .replace(/[^\w-]+/g, "");
 
   return (
-    <div className="px-[16px] lg:px-[100px] pb-[65%] pt-[80px] lg:pb-[168px]">
+    <div className="px-[16px] lg:px-[100px] pb-[90%] pt-[80px] lg:pb-[168px]">
       {" "}
       {loading ? (
         <Spinner />

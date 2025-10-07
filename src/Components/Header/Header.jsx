@@ -19,17 +19,33 @@ const Header = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [user, setUser] = useState();
 
+  // useEffect(() => {
+  //   // Load user from localStorage
+  //   const storedUser = localStorage.getItem("user");
+  //   if (storedUser) {
+  //     setUser(JSON.parse(storedUser));
+  //   }
+  // }, []);
+
   useEffect(() => {
-    // Load user from localStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const loadUser = () => {
+      const storedUser = localStorage.getItem("user");
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+    };
+
+    loadUser(); // run on mount
+
+    // listen for custom login/register updates
+    window.addEventListener("storageUpdate", loadUser);
+
+    return () => {
+      window.removeEventListener("storageUpdate", loadUser);
+    };
   }, []);
 
   return (
-    <header className="flex justify-between items-center lg:px-[100px] lg:py-[24px] px-[16px] py-[12px]">
-      <div className="flex justify-between items-center w-full">
+    <header className="flex justify-between items-center lg:px-[100px]  px-[16px] ">
+      <div className="flex justify-between items-center w-full lg:py-[24px] py-[12px] border-b border-black border-opacity-10">
         <div className="sm:hidden flex items-center">
           <button onClick={() => setNavOpen(!navOpen)}>
             <svg
@@ -136,7 +152,9 @@ const Header = () => {
         <MagnifyingGlassIcon className="h-[24px] w-[24px] text-black lg:hidden" />
 
         <div className="flex items-center gap-[14px]">
-          <img src={cart} alt="Logo" className="h-[24px] w-[24px]" />
+          <Link to="/cart">
+            <img src={cart} alt="Logo" className="h-[24px] w-[24px]" />
+          </Link>
 
           {/* <span className="sm:mr-4 mr-2">
             <i className="fas fa-shopping-cart"></i> Cart
@@ -196,7 +214,9 @@ const Header = () => {
                       onClick={() => {
                         localStorage.removeItem("user");
                         localStorage.removeItem("token");
-                        window.location.href = "/";
+
+                        // 🔔 Tell the app about it
+                        window.dispatchEvent(new Event("storageUpdate"));
                       }}
                       className={`${
                         active ? "bg-gray-100" : ""

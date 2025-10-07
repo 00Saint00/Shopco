@@ -11,6 +11,7 @@ import { Autoplay } from "swiper/modules";
 import axios from "axios";
 import Spinner from "../Ui/Spinner";
 import { applyDailyDiscounts } from "../utils/discountUtils";
+import Error from "../Ui/Error.js";
 
 // Lazy-load heavy components
 const LatestArrival = lazy(() => import("./Latest/latestArrival"));
@@ -18,27 +19,6 @@ const Topselling = lazy(() => import("./Top selling/topselling"));
 const DressStyles = lazy(() => import("./Dress Styles/dressStyle"));
 const Testimonials = lazy(() => import("./Testimonials/testimonial"));
 const Slider = lazy(() => import("../Ui/Slider"));
-
-// // --- Daily Discount Logic ---
-// function getDailyDiscountedItems(products, count = 10) {
-//   const today = new Date().toISOString().split("T")[0]; // "2025-09-20"
-//   const seed = today.split("-").join(""); // e.g. "20250920"
-//   let rng = mulberry32(parseInt(seed)); // seeded RNG
-
-//   const shuffled = [...products].sort(() => rng() - 0.5);
-//   return shuffled.slice(0, count);
-// }
-
-// // Small seeded RNG
-// function mulberry32(a) {
-//   return function () {
-//     a |= 0;
-//     a = (a + 0x6d2b79f5) | 0;
-//     let t = Math.imul(a ^ (a >>> 15), 1 | a);
-//     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-//     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-//   };
-// }
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -50,11 +30,12 @@ function Home() {
   const settings = {
     modules: [Autoplay],
     autoplay: {
-      delay: 2000,
+      delay: 0,
       disableOnInteraction: false,
     },
-    speed: 900,
+    speed: 700,
     loop: true,
+    allowTouchMove: false,
     slidesPerView: 3,
     breakpoints: {
       320: { slidesPerView: 1, centeredSlides: true, spaceBetween: 10 },
@@ -119,21 +100,31 @@ function Home() {
     );
 
     Promise.all([fetchReviews, fetchUsers])
+      // .then(([reviewsResponse, usersResponse]) => {
+      //   const reviewData = reviewsResponse.data.data.map((review) => ({
+      //     comment: review.comment,
+      //     rating: review.rating,
+      //     userId: review.userId,
+      //   }));
+      //   const usersData = {};
+      //   usersResponse.data.data.forEach((user) => {
+      //     usersData[user._id] = user;
+      //   });
+      //   const reviewsWithUser = reviewData.map((review) => ({
+      //     ...review,
+      //     user: usersData[review.userId],
+      //   }));
+      //   setReviews(reviewsWithUser);
+      //   setLoading(false);
+      // })
       .then(([reviewsResponse, usersResponse]) => {
-        const reviewData = reviewsResponse.data.data.map((review) => ({
-          comment: review.comment,
-          rating: review.rating,
-          userId: review.userId,
-        }));
-        const usersData = {};
-        usersResponse.data.data.forEach((user) => {
-          usersData[user._id] = user;
+        const reviews = reviewsResponse.data.data.map((review) => {
+          const user = usersResponse.data.data.find(
+            (u) => u._id === review.userId
+          );
+          return { ...review, user };
         });
-        const reviewsWithUser = reviewData.map((review) => ({
-          ...review,
-          user: usersData[review.userId],
-        }));
-        setReviews(reviewsWithUser);
+        setReviews(reviews);
         setLoading(false);
       })
       .catch((error) => {
